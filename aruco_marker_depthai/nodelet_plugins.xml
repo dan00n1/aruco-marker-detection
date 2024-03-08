@@ -1,7 +1,0 @@
-<library path="lib/libnodelet_stereo">
-  <class name="aruco_marker_depthai/StereoNodelet" type="depthai_examples::StereoNodelet" base_class_type="nodelet::Nodelet">
-  <description>
-  This is stereo publishing nodelet.
-  </description>
-  </class>
-</library>
