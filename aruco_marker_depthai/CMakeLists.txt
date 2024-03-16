@@ -89,9 +89,6 @@ macro(dai_add_node_ros2 node_name node_src1 node_src2)
 endmacro()
 
 
-dai_add_node_ros2(yolo_spatial_detector_node src/yolo_spatial_detector_node.cpp src/SpatialDetectionConverterEx.cpp)
-dai_add_node_ros1(stereo_node src/stereo_publisher.cpp)
-
 
 if($ENV{ROS_DISTRO} STREQUAL "galactic")
   target_compile_definitions(rgb_stereo_node PRIVATE IS_GALACTIC)
@@ -108,17 +105,12 @@ install(DIRECTORY launch/ DESTINATION share/${PROJECT_NAME}/launch)
 #FILES_MATCHING PATTERN "*.py")
 
 install(TARGETS
-        yolo_spatial_detector_node
-        stereo_node
         DESTINATION lib/${PROJECT_NAME})
 
 
 
 install(PROGRAMS
-        scripts/publisch_bouding_boxes.py
-        scripts/publisch_tf.py
-        scripts/circle_detector.py
-        scripts/workspace_from_markers.py
+        scripts/marker_detector.py
         DESTINATION lib/${PROJECT_NAME})
 
 
