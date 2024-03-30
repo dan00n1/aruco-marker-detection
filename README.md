@@ -21,7 +21,7 @@ cd {Your-installation-path-here}/aruco_marker_depthai
 # Source your ROS2 installation
 source /opt/ros/humble/setup.bash
 
-# Build the project
+# Build the project (twice if you encounter errors or warnings)
 colcon build
 
 # Source the install file of the project

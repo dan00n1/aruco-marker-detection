@@ -26,78 +26,41 @@ class MarkerDetector(Node):
 
     def __init__(self):
         super().__init__('marker_detector')
-
-        # self.subImage = self.create_subscription(Image, 'color/image_rect', self.image_callback, 10)
+        self.bridge = CvBridge()
+        
         self.pubDetectedMarkerImage = self.create_publisher(Image, 'color/detected_markers', 10)
         self.pubTextMarker = self.create_publisher(Marker, 'color/ObjectText', 10)
-
-        self.bridge = CvBridge()
-
-        # Initialize the transform broadcaster
-        self.tf_broadcaster = TransformBroadcaster(self)
-        # qos_profile = QoSProfile(reliability=QoSReliabilityPolicy.BEST_EFFORT, history=QoSHistoryPolicy.KEEP_LAST, depth=1)
-        
-        # Create self.pipeline
-        self.pipeline = dai.Pipeline()
-
-        # Define source and outputs
-        self.camRgb = self.pipeline.create(dai.node.ColorCamera)
-        self.xoutVideo = self.pipeline.create(dai.node.XLinkOut)
-        self.xoutPreview = self.pipeline.create(dai.node.XLinkOut)
-
-        # Set stream names
-        self.xoutVideo.setStreamName("video")
-        self.xoutPreview.setStreamName("preview")
-
-        # Set camera properties
-        self.set_camera_properties(self.camRgb)
-        self.set_link_camera(self.camRgb, self.xoutVideo, self.xoutPreview)
-
+        self.subImage = self.create_subscription(Image, 'color/image_rect', self.image_callback, 10)
         
         # Define the ArUco parameters
         self.aruco_params = cv2.aruco.DetectorParameters_create()
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_100)
-        self.image_callback()
 
-    def image_callback(self):
-        # self.frame = self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough')
-        self.device = dai.Device(self.pipeline)
+    def image_callback(self, image_msg):
+        self.frame = self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough')
 
-        # Connect to device and start self.pipeline
-        video = self.device.getOutputQueue('video')
-        preview = self.device.getOutputQueue('preview')
+        corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(self.frame, self.aruco_dict, parameters=self.aruco_params)
+        ids_found = self.is_object_visible(ids)
+        
+        # If markers are detected, draw them on the frame and print their coordinates
+        if ids_found:
+            list_of_markers_found = []
 
-        while rclpy.ok():
-            videoFrame = video.get()
-            previewFrame = preview.get()
-            self.frame = previewFrame.getCvFrame()
+            for i, marker_id in enumerate(ids):
+                marker_corner_points = [tuple(map(int, coords)) for coords in corners[i][0]]
+                list_of_markers_found.append(marker_corner_points)
 
-            corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(self.frame, self.aruco_dict, parameters=self.aruco_params)
-            ids_found = self.is_object_visible(ids)
+            self.draw_detected_markers_on_screen(self.frame, corners, ids)
+
+            list_of_corners = self.find_corners(list_of_markers_found)
+            four_corners_are_found, list_of_four_corners = self.get_list_of_four_corners(list_of_corners)
             
-            # If markers are detected, draw them on the frame and print their coordinates
-            if ids_found:
-                list_of_markers_found = []
+            if four_corners_are_found:
+                self.draw_rectangle_around_four_corner_markers(self.frame, list_of_four_corners)
+            
+            self.draw_markers_on_screen(self.frame, list_of_markers_found, list_of_corners)
 
-                for i, marker_id in enumerate(ids):
-                    marker_corner_points = [tuple(map(int, coords)) for coords in corners[i][0]]
-                    list_of_markers_found.append(marker_corner_points)
-
-                self.draw_detected_markers_on_screen(self.frame, corners, ids)
-
-                list_of_corners = self.find_corners(list_of_markers_found)
-                four_corners_are_found, list_of_four_corners = self.get_list_of_four_corners(list_of_corners)
-                
-                if four_corners_are_found:
-                    self.draw_rectangle_around_four_corner_markers(self.frame, list_of_four_corners)
-                    # print(self.calculate_rectangle_position(list_of_four_corners))
-                
-                self.draw_markers_on_screen(self.frame, list_of_markers_found, list_of_corners)
-                
-            cv2.imshow("ArUco Detection", self.frame)
-            cv2.waitKey(1)
-
-            self.publish_image(self.frame)
+        self.publish_image(self.frame)
 
     def publish_image(self, frame):
         image_message= self.bridge.cv2_to_imgmsg(frame, encoding="passthrough")
