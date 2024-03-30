@@ -36,7 +36,7 @@ source install/setup.bash
 
 ### 3. Run the marker detector.
 ```bash
-ros2 launch aruco_marker_depthai stereo_marker_detector.launch.py
+ros2 launch aruco_marker_depthai marker_detector_own_pipeline.launch.py
 ```
 
 ## License
