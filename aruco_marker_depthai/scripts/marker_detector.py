@@ -96,7 +96,7 @@ class MarkerDetector(Node):
                 
             cv2.imshow("ArUco Detection", self.frame)
             cv2.waitKey(1)
-
+            
             self.publish_image(self.frame)
 
     def publish_image(self, frame):
