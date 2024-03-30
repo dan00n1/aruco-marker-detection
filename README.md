@@ -1,27 +1,34 @@
 # aruco-marker-detection
-An repo for the detection and calculation regarding Aruco markers
+An repository for the detection and calculation regarding Aruco markers and it's camera
 
 ## Requires
-- ROS2 Humble installation
-- DepthAI OAK-d Camera
+- ROS2 Humble installation (See: [ROS2 Humble documentation](https://docs.ros.org/en/humble/index.html))
+- DepthAI OAK-d Camera (See: [Luxonis OAK-d Camera](https://docs.luxonis.com/projects/hardware/en/latest/pages/BW1098OAK/))
 
 ## Start-up (Ubuntu terminal commands)
-
-
-Navigate to the correct workspace. (I had the workspace located at `Home/Depthai-tester-folder/aruco_marker_depthai`)  
+Navigate to the correct workspace. Note: if you copy this repository directly, the folder `aruco_marker_depthai` will be located *inside* the `aruco-marker-detection` folder
 ```bash
 cd {Your-installation-path-here}/aruco_marker_depthai
+# Alternatively: 
+# cd {Your-download-path}/aruco-marker-detection/aruco_marker_depthai  
 ```
 
-Source your ROS2 installation
-```bash
-source install/setup.bash
+Source the ROS2 installations and build the project
+```bash 
+#Source your ROS2 installation
 source /opt/ros/humble/setup.bash
+
+# Build the project
+colcon build
+
+#Source the install file of the project
+source install/setup.bash
 ```
 
-Build the project. Maybe do it twice just to be sure. `--symlink-install` can be added to prevent the constant building of the project after minor changes inside python files.
+Build the project again, just to be sure, and source the setup file again. Note: `--symlink-install` can be added to prevent the constant building of the project after minor changes inside python files.
 ```bash
-colcon build
+colcon build --symlink-install
+source install/setup.bash
 ```
 
 Run the marker detector.
