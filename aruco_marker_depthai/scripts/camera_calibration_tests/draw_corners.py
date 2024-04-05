@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 # File path to the input image
-FOLDER_PATH = "/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration_tests/test_images_phone_camera/"
+FOLDER_PATH = "/home/danoon/shared/aruco-marker-detection/Media/test_images_phone_camera"
 FILE_NAME = "chessboard_input3.jpeg"
 FILE_PATH = os.path.join(FOLDER_PATH, FILE_NAME)
 
