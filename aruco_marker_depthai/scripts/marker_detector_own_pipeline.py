@@ -1,17 +1,12 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from rclpy.duration import Duration
 from sensor_msgs.msg import Image
-from sensor_msgs.msg import PointCloud2
 import numpy as np
 import depthai as dai
 from visualization_msgs.msg import Marker
-import ros2_numpy
 import cv2
 from cv_bridge import CvBridge
-import tf2_ros
-import geometry_msgs.msg
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
