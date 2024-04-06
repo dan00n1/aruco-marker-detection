@@ -279,6 +279,7 @@ def process_images(file_path):
 
   if DEBUG_PARAMETERS:
     display_key_parameter_outputs(optimal_camera_matrix, dist, rvecs, tvecs)
+    # TODO: Save the parameters using pickle or another method
 
 # ----------------- Main code -----------------
 object_points_3D = prepare_3D_object_points(SQUARE_SIZE)
