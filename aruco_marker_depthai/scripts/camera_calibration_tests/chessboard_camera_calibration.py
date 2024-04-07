@@ -2,10 +2,16 @@ import cv2
 import numpy as np
 import glob
 import os
+import pickle
 
 # For testing purposes:
-DEBUG_IMAGES = True
-DEBUG_PARAMETERS = True
+DEBUG_IMAGES = False # Set to True to display the images with the detected corners
+DEBUG_PARAMETERS = False # Set to True to display the key parameters in console
+
+# Path to the folder where the pickle file will be saved; change to the correct directory path
+PICKLE_PATH = '/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration_tests/calibration_values'
+PICKLE_FILE_NAME = 'camera_calibration_pickle_file' # The name of the pickle file, change if needed
+PICKLE_FILE_PATH = os.path.join(PICKLE_PATH, PICKLE_FILE_NAME)
 
 # File path to the input image; change to the correct directory path
 DISTORTED_IMAGE_FOLDER = '/home/danoon/shared/aruco-marker-detection/Media/images_oakd_camera'
@@ -226,20 +232,6 @@ def undistort_example_image(distorted_image, mtx, dist, optimal_camera_matrix):
 
   return undistorted_image
   
-def display_key_parameter_outputs(optimal_camera_matrix, dist, rvecs, tvecs):
-  """ Display the key parameters """
-  print("Optimal Camera matrix:") 
-  print(optimal_camera_matrix) 
- 
-  print("\n Distortion coefficient:") 
-  print(dist) 
-   
-  print("\n Rotation Vectors:") 
-  print(rvecs) 
-   
-  print("\n Translation Vectors:") 
-  print(tvecs) 
- 
 def save_undistorted_example_image(output_directory, file_name_without_extension, undistorted_image):
   """
   A function to save the undistorted example image
@@ -259,6 +251,47 @@ def close_all_cv_windows():
   """ Close all OpenCV windows """
   cv2.destroyAllWindows()
 
+def display_key_parameter_outputs(optimal_camera_matrix, dist, rvecs, tvecs):
+  """ Display the key parameters """
+  print("--- Camera Calibration Results ---")
+  
+  print("\nOptimal Camera matrix:")
+  print(optimal_camera_matrix) 
+
+  print("\nDistortion coefficient:") 
+  print(dist) 
+
+  print("\nRotation Vectors:") 
+  print(rvecs) 
+
+  print("\nTranslation Vectors:") 
+  print(tvecs) 
+ 
+def save_key_parameters_to_pickle_file(optimal_camera_matrix, mtx, dist, rvecs, tvecs):
+  """
+  A function to save the key parameters to a pickle file
+  
+  Args:
+    optimal_camera_matrix: The optimal camera matrix
+    mtx: The camera matrix
+    dist: The distortion coefficients
+    rvecs: The rotation vectors
+    tvecs: The translation vectors
+  """
+  calibration_result_list = {
+    "mtx": mtx,
+    "optimal_camera_matrix": optimal_camera_matrix,
+    "dist": dist,
+    "rvecs": rvecs,
+    "tvecs": tvecs
+  }
+
+  with open(f"{PICKLE_FILE_PATH}.pkl", "wb" ) as new_pickle_file:
+    pickle.dump(calibration_result_list, new_pickle_file)
+    print('\nFile saved to', f"{PICKLE_FILE_PATH}.pkl")
+
+
+
 def process_images(file_path):
   """
   A function to process the image and undistort it
@@ -277,9 +310,10 @@ def process_images(file_path):
   undistorted_image = undistort_example_image(distorted_image, mtx, dist, optimal_camera_matrix)
   save_undistorted_example_image(output_directory, file_name_without_extension, undistorted_image)
 
+  save_key_parameters_to_pickle_file(optimal_camera_matrix, mtx, dist, rvecs, tvecs)
+  
   if DEBUG_PARAMETERS:
     display_key_parameter_outputs(optimal_camera_matrix, dist, rvecs, tvecs)
-    # TODO: Save the parameters using pickle or another method
 
 # ----------------- Main code -----------------
 object_points_3D = prepare_3D_object_points(SQUARE_SIZE)

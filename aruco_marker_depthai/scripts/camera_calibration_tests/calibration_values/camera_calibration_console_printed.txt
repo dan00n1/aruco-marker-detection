@@ -1,3 +1,7 @@
+These values were directly copied from the console after running the chessboard_camera_calibration script,
+ facilitated by the DEBUG_PARAMETERS feature.
+These values are also stored inside the camera_calibration_pickle_file.
+
 Optimal Camera matrix:
 [[835.62634277   0.         501.24453378]
  [  0.         825.33557129 275.53744115]
