@@ -10,7 +10,7 @@ Keep in mind that the images that are being saved, are around 2MB in size.
 I advise you to resize them before using them, so that they don't take up too much space.
 
 Important note:
-If the message is not printed, you may need to press the 'c' key again.
+If the message 'Image saved to ...' is not printed, you may need to press the 'c' key again.
 Sometimes even multiple times, as the camera may not be ready to capture the image.
 Maybe waiting for a longer time before capturing again could help or try to restart the script.
 
