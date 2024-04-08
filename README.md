@@ -21,8 +21,11 @@ cd {Your-installation-path-here}/aruco_marker_depthai
 ```bash
 # Source your ROS2 installation
 source /opt/ros/humble/setup.bash
+```
 
-# Build the project
+### 3. Build the project
+```bash
+# Build the project (twice if you encounter errors or warnings)
 colcon build
 
 # Source the install file of the project
@@ -37,8 +40,28 @@ source install/setup.bash
 
 ### 3. Launch the Marker Detector
 ```bash
-ros2 launch aruco_marker_depthai stereo_marker_detector.launch.py
+ros2 launch aruco_marker_depthai marker_detector_own_pipeline.launch.py
 ```
+
+### Possible errors
+While building or running the project, there is a possibility that you may encounter errors. Some of these errors have already been addressed, so I provide the solutions for you here:
+#### Different end-of-line characters
+The following error may occur when trying to run the detector:
+![Python error; no such file or directory](<Info images/Python error no such file or dir.png>)
+
+If that is the case, you need to ensure that the scripts, sources, and/or launch files are in the correct line-ending character format. Use the tool `dos2unix` to convert the files to the Unix-style line endings that Ubuntu requires. ([Source of solution](https://askubuntu.com/questions/896860/usr-bin-env-python3-r-no-such-file-or-directory))
+```bash
+# Install dos2unix:
+sudo apt install dos2unix
+
+# Convert the files to Unix-style line endings:
+dos2unix {file-path}/{file-name}
+# output: dos2unix: converting file {file-name} to Unix format ...
+
+## For example:
+## dos2unix scripts/marker_detector.py
+```
+Return to step 2 to rebuild the project again.
 
 ## License
 [MIT License](https://github.com/dan00n1/aruco-marker-detection/blob/0d4f772d2e9c2635cd3b6ded379c2c12e2cb8b23/LICENSE)

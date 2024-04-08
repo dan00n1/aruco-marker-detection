@@ -88,7 +88,7 @@ macro(dai_add_node_ros2 node_name node_src1 node_src2)
 
 endmacro()
 
-
+dai_add_node_ros1(stereo_node src/stereo_publisher.cpp)
 
 if($ENV{ROS_DISTRO} STREQUAL "galactic")
   target_compile_definitions(rgb_stereo_node PRIVATE IS_GALACTIC)
@@ -105,6 +105,7 @@ install(DIRECTORY launch/ DESTINATION share/${PROJECT_NAME}/launch)
 #FILES_MATCHING PATTERN "*.py")
 
 install(TARGETS
+        stereo_node
         DESTINATION lib/${PROJECT_NAME})
 
 
