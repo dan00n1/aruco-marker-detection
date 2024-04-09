@@ -4,7 +4,7 @@ import os
 
 # Path to the image file; change this to the path of the image you want to undistort
 IMAGE_PATH = '/home/danoon/shared/aruco-marker-detection/Media/images_oakd_camera/chessboard_oakd_1.jpg'
-PICKLE_FILE_PATH = '/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration_tests/calibration_values/camera_calibration_pickle_file.pkl'
+PICKLE_FILE_PATH = '/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration/calibration_values/camera_calibration_pickle_file.pkl'
 
 def load_image(file_path):
   """ 
