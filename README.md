@@ -8,7 +8,7 @@ This repository hosts a sophisticated system for detecting and calculating ArUco
 
 ## Prerequisites
 Before proceeding, ensure you have the following:
-- Have at least four distinct ArUco markers. You can find the markers used in this project in `Media/ArUco_markers`, or generate your own using the 4x4 variant at [ArUco Generator](https://chev.me/arucogen/).
+- ArUco markers (4x4 variant): Have at least four distinct ArUco markers of the 4x4 variant. You can either choose from the provided markers in the `Media/ArUco_markers` directory or generate your own using the [ArUco Generator](https://chev.me/arucogen/).
 
 ## Installation and Startup Procedures
 Execute the following commands within an Ubuntu terminal. Ensure that **ROS2 Humble** is properly installed and that the camera is connected via a USB 3.0 port (identified by a blue-colored USB port).
