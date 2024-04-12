@@ -112,8 +112,8 @@ install(TARGETS
 
 install(PROGRAMS
         scripts/marker_detector.py
+        scripts/aruco_pose_node.py
         DESTINATION lib/${PROJECT_NAME})
 
 
 ament_package()
-
