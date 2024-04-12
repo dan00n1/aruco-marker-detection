@@ -6,6 +6,10 @@ This repository hosts a sophisticated system for detecting and calculating ArUco
 - Installation of ROS2 Humble (Refer to [ROS2 Humble documentation](https://docs.ros.org/en/humble/index.html))
 - DepthAI OAK-d Camera (For more details, see [Luxonis OAK-d Camera](https://docs.luxonis.com/projects/hardware/en/latest/pages/BW1098OAK/))
 
+## Prerequisites
+Before proceeding, ensure you have the following:
+- ArUco markers (4x4 variant): Have at least four distinct ArUco markers of the 4x4 variant. You can either choose from the provided markers in the `Media/ArUco_markers` directory or generate your own using the [ArUco Generator](https://chev.me/arucogen/).
+
 ## Installation and Startup Procedures
 Execute the following commands within an Ubuntu terminal. Ensure that **ROS2 Humble** is properly installed and that the camera is connected via a USB 3.0 port (identified by a blue-colored USB port).
 
@@ -32,22 +36,22 @@ colcon build
 source install/setup.bash
 ```
 
-Rebuild the project to ensure accuracy and source the setup file again. *Note: `--symlink-install` can be appended to prevent frequent rebuilding of the project after minor changes in Python files.*
+Rebuild the project to ensure accuracy and source the setup file again. *NOTE: Rebuild like this after every change you make.*
 ```bash
-colcon build --symlink-install
+colcon build
 source install/setup.bash
 ```
 
 ### 3. Launch the Marker Detector
 ```bash
-ros2 launch aruco_marker_depthai marker_detector_own_pipeline.launch.py
+ros2 launch aruco_marker_depthai marker_detector.py
 ```
 
 ### Possible errors
 While building or running the project, there is a possibility that you may encounter errors. Some of these errors have already been addressed, so I provide the solutions for you here:
 #### Different end-of-line characters
 The following error may occur when trying to run the detector:
-![Python error; no such file or directory](<Info images/Python error no such file or dir.png>)
+![Python error; no such file or directory](<Media/README_images/Python error no such file or dir.png>)
 
 If that is the case, you need to ensure that the scripts, sources, and/or launch files are in the correct line-ending character format. Use the tool `dos2unix` to convert the files to the Unix-style line endings that Ubuntu requires. ([Source of solution](https://askubuntu.com/questions/896860/usr-bin-env-python3-r-no-such-file-or-directory))
 ```bash

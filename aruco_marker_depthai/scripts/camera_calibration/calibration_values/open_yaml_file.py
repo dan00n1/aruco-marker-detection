@@ -2,7 +2,7 @@ import cv2
 import os
 
 # Define the directory and file name
-DIRECTORY = '/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration_tests/calibration_values/'
+DIRECTORY = '/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration/calibration_values/'
 CV_FILE_NAME = 'calibration_chessboard.yaml'
 
 cv_file_path = os.path.join(DIRECTORY, CV_FILE_NAME)

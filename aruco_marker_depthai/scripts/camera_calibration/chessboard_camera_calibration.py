@@ -9,7 +9,7 @@ DEBUG_IMAGES = False # Set to True to display the images with the detected corne
 DEBUG_PARAMETERS = False # Set to True to display the key parameters in console
 
 # Path to the folder where the pickle file will be saved; change to the correct directory path
-PICKLE_PATH = '/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration_tests/calibration_values'
+PICKLE_PATH = '/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration/calibration_values'
 PICKLE_FILE_NAME = 'camera_calibration_pickle_file' # The name of the pickle file, change if needed
 PICKLE_FILE_PATH = os.path.join(PICKLE_PATH, PICKLE_FILE_NAME)
 

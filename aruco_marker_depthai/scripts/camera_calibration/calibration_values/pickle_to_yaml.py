@@ -4,7 +4,7 @@ import os
 import pickle
 
 # Define the directory and file names
-DIRECTORY = '/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration_tests/calibration_values/'
+DIRECTORY = '/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration/calibration_values/'
 PICKLE_FILE_NAME = 'camera_calibration_pickle_file.pkl'
 CV_FILE_NAME = 'calibration_chessboard.yaml'
 
