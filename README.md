@@ -36,15 +36,15 @@ colcon build
 source install/setup.bash
 ```
 
-Rebuild the project to ensure accuracy and source the setup file again. *Note: `--symlink-install` can be appended to prevent frequent rebuilding of the project after minor changes in Python files.*
+Rebuild the project to ensure accuracy and source the setup file again. *NOTE: Rebuild like this after every change you make.*
 ```bash
-colcon build --symlink-install
+colcon build
 source install/setup.bash
 ```
 
 ### 3. Launch the Marker Detector
 ```bash
-ros2 launch aruco_marker_depthai marker_detector_own_pipeline.launch.py
+ros2 launch aruco_marker_depthai marker_detector.py
 ```
 
 ### Possible errors
