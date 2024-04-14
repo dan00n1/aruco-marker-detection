@@ -113,6 +113,7 @@ install(TARGETS
 install(PROGRAMS
         scripts/marker_detector.py
         scripts/aruco_pose_node.py
+        scripts/aruco_location.py
         DESTINATION lib/${PROJECT_NAME})
 
 
