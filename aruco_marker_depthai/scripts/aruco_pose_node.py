@@ -73,6 +73,12 @@ class ArucoPoseNode(Node):
         
 
     def determine_pose(self, image_msg):
+        """
+        Determine the pose of the ArUco marker in the image
+
+        Parameters:
+            image_msg: The image message
+        """
         self.frame = self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough')
 
         (corners, marker_ids, rejected) = cv2.aruco.detectMarkers(self.frame, self.aruco_dictionary, parameters=self.aruco_parameters, cameraMatrix=self.mtx, distCoeff=self.dst)
@@ -105,6 +111,11 @@ class ArucoPoseNode(Node):
         self.publish_image(self.frame)
 
     def publish_image(self, frame):
+        """ Publish the image with the detected ArUco marker pose 
+        
+        Parameters:
+            frame: The image with the detected ArUco marker pose
+        """
         image_message = self.bridge.cv2_to_imgmsg(frame, encoding="passthrough")
         self.pubDetectedMarkerPose.publish(image_message)
 
