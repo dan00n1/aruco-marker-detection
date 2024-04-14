@@ -64,12 +64,13 @@ class ArucoPoseNode(Node):
     def __init__(self):
         super().__init__('aruco_pose_node')
         self.bridge = CvBridge()
+       
+        self.mtx, self.dst = self.get_camera_calibration_values()
+        self.aruco_dictionary, self.aruco_parameters = self.get_aruco_dictionary()
 
         self.pubDetectedMarkerPose = self.create_publisher(Image, 'color/detected_marker_pose', 10)
         self.subImage = self.create_subscription(Image, 'color/image_rect', self.determine_pose, 10)
         
-        self.mtx, self.dst = self.get_camera_calibration_values()
-        self.aruco_dictionary, self.aruco_parameters = self.get_aruco_dictionary()
 
     def determine_pose(self, image_msg):
         self.frame = self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough')
