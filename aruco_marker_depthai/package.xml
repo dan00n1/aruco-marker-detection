@@ -7,8 +7,8 @@
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="ga.harkema@avans.nl">sachin</maintainer>
-  <author>Gerard Harkema</author>
+  <maintainer email="danine.hbo@gmail.com">Danine</maintainer>
+  <author>Danine</author>
 
   <license>MIT</license>
 
@@ -32,6 +32,10 @@
   <depend>foxglove_msgs</depend>
   <depend>rviz_imu_plugin</depend>
   <depend>visualization_msgs</depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf_transformations</depend>
 
   <depend>rclpy</depend>
 

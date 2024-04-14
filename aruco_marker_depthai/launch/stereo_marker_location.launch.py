@@ -9,7 +9,7 @@ import launch_ros.actions
 import launch_ros.descriptions
 
 def generate_launch_description():
-    default_rviz = os.path.join(get_package_share_directory('aruco_marker_depthai'), 'rviz', 'stereoMarkerPose.rviz')
+    default_rviz = os.path.join(get_package_share_directory('aruco_marker_depthai'), 'rviz', 'stereoMarkerLocation.rviz')
 
     tf_prefix  = LaunchConfiguration('tf_prefix', default = 'oak')
     mode = LaunchConfiguration('mode', default = 'depth')
@@ -33,13 +33,13 @@ def generate_launch_description():
                     {'LRchecktresh': LRchecktresh},
                     {'monoResolution': monoResolution}])
     
-    aruco_pose_node = launch_ros.actions.Node(package='aruco_marker_depthai', executable='aruco_pose_node.py', output='screen')
+    aruco_location = launch_ros.actions.Node(package='aruco_marker_depthai', executable='aruco_location.py', output='screen')
 
     rviz_node = launch_ros.actions.Node(package='rviz2', executable='rviz2', output='screen', arguments=['--display-config', default_rviz])
 
     ld = LaunchDescription()
     ld.add_action(stereo_node)
-    ld.add_action(aruco_pose_node)
+    ld.add_action(aruco_location)
     ld.add_action(rviz_node)
 
     return ld
