@@ -20,7 +20,7 @@ Imagine you are looking through the camera viewfinder, the camera lens frame's:
  - z-axis points straight ahead away from your eye, out of the camera
 """
 
-#
+# Set to True to print the transformation information
 DEBUG_PRINT_VALUES = False
 
 # The different ArUco dictionaries built into the OpenCV library. 
