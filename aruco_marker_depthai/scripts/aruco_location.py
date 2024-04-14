@@ -2,6 +2,7 @@
 import cv2
 import os
 import rclpy
+import sys
 import numpy as np 
 from rclpy.node import Node 
 from cv_bridge import CvBridge
@@ -10,7 +11,16 @@ from sensor_msgs.msg import Image
 from tf2_ros import TransformBroadcaster
 from scipy.spatial.transform import Rotation as R
 
-import depthai as dai # TODO: remove when not needed anymore
+"""
+This script calculates the location of an ArUco marker in the camera frame.
+Uses rviz to visualize the marker location.
+
+The pose of the marker is with respect to the camera lens frame.
+Imagine you are looking through the camera viewfinder, the camera lens frame's:
+ - x-axis points to the right
+ - y-axis points straight down towards your toes
+ - z-axis points straight ahead away from your eye, out of the camera
+"""
 
 # The different ArUco dictionaries built into the OpenCV library. 
 # This list is used to check if the user has selected a valid ArUco dictionary.
@@ -40,6 +50,9 @@ ARUCO_DICTIONARY_NAME = "DICT_4X4_1000"
 # ArUco marker side length in meters; change to the correct side length
 ARUCO_MARKER_SIDE_LENGTH = 0.030 # 28mm
 
+# ArUco marker name; change to the correct marker name; TODO: change if needed 
+ARUCO_MARKER_NAME = "aruco_marker"
+
 # File path to the input image; change to the correct directory path and file name
 DIRECTORY = "/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration/calibration_values/"
 CAMERA_CALIBRATION_FILE_NAME = "calibration_chessboard.yaml"
@@ -52,101 +65,189 @@ DIST_NODE_NAME = "DIST"
 class ArucoLocation(Node):
     def __init__(self):
         super().__init__('aruco_location')
-    
         self.bridge = CvBridge()
-
-        # FIXME: Remove and use constants shown above
-        self.declare_parameter("aruco_dictionary_name", "DICT_4X4_1000")
-        self.declare_parameter("aruco_marker_side_length", 0.030)
-        self.declare_parameter("camera_calibration_parameters_filename", "/calibration_chessboard.yaml")
-        self.declare_parameter("image_topic", "/video_frames")
-        self.declare_parameter("aruco_marker_name", "aruco_marker")
-        
-        # Read parameters
-        aruco_dictionary_name = self.get_parameter("aruco_dictionary_name").get_parameter_value().string_value
-        self.aruco_marker_side_length = self.get_parameter("aruco_marker_side_length").get_parameter_value().double_value
-        self.camera_calibration_parameters_filename = self.get_parameter("camera_calibration_parameters_filename").get_parameter_value().string_value
-        image_topic = self.get_parameter("image_topic").get_parameter_value().string_value
-        self.aruco_marker_name = self.get_parameter("aruco_marker_name").get_parameter_value().string_value
-    
-        # Check that we have a valid ArUco marker
-        if ARUCO_DICT.get(aruco_dictionary_name, None) is None:
-            self.get_logger().info("[INFO] ArUCo tag of '{}' is not supported".format(args["type"]))
-            
-        # Load the camera parameters from the saved file
-        cv_file = cv2.FileStorage(self.camera_calibration_parameters_filename, cv2.FILE_STORAGE_READ) 
-        self.mtx = cv_file.getNode('K').mat()
-        self.dst = cv_file.getNode('D').mat()
-        cv_file.release()
-        
-        # Load the ArUco dictionary
-        self.get_logger().info("[INFO] detecting '{}' markers...".format(aruco_dictionary_name))
-        self.this_aruco_dictionary = cv2.aruco.Dictionary_get(ARUCO_DICT[aruco_dictionary_name])
-        self.this_aruco_parameters = cv2.aruco.DetectorParameters_create()
-        
-        # Create the subscriber. This subscriber will receive an Image from the video_frames topic. The queue size is 10 messages.
-        self.subscription = self.create_subscription(Image, image_topic, self.listener_callback, 10)
-        
-        # Initialize the transform broadcaster
         self.tfbroadcaster = TransformBroadcaster(self)
+
+        self.aruco_dictionary, self.aruco_parameters = self.get_aruco_dictionary()
+        self.mtx, self.dst = self.get_camera_calibration_values()    
+
+        self.pubDetectedMarkerLocation = self.create_publisher(Image, 'color/detected_marker_location', 10)
+        self.subImage = self.create_subscription(Image, 'color/image_rect', self.calculate_marker_location, 10)
         
-    
-    def listener_callback(self, data):
-        # Display the message on the console
-        self.get_logger().info('Receiving video frame')
-    
-        # Convert ROS Image message to OpenCV image
-        current_frame = self.bridge.imgmsg_to_cv2(data)
+    def get_camera_calibration_values(self):
+        """ 
+        Get the camera calibration values from the saved file. 
         
-        # Detect ArUco markers in the video frame
-        (corners, marker_ids, rejected) = cv2.aruco.detectMarkers(current_frame, self.this_aruco_dictionary, parameters=self.this_aruco_parameters, cameraMatrix=self.mtx, distCoeff=self.dst)
-    
-       # Check that at least one ArUco marker was detected
-        if marker_ids is not None:
-            # Draw a square around detected markers in the video frame
-            cv2.aruco.drawDetectedMarkers(current_frame, corners, marker_ids)
-        
-            # Get the rotation and translation vectors
-            rvecs, tvecs, obj_points = cv2.aruco.estimatePoseSingleMarkers(corners, self.aruco_marker_side_length, self.mtx, self.dst)
-                
-            # The pose of the marker is with respect to the camera lens frame.
-            # Imagine you are looking through the camera viewfinder, the camera lens frame's:
-            # x-axis points to the right
-            # y-axis points straight down towards your toes
-            # z-axis points straight ahead away from your eye, out of the camera
-            for i, marker_id in enumerate(marker_ids):  
-                # Create the coordinate transform
-                transform_stamped = TransformStamped()
-                transform_stamped.header.stamp = self.get_clock().now().to_msg()
-                transform_stamped.header.frame_id = 'camera_depth_frame'
-                transform_stamped.child_frame_id = self.aruco_marker_name
+        Returns:
+            mtx: The camera matrix
+            dst: The distortion coefficients
             
-                # Store the translation (i.e. position) information
-                transform_stamped.transform.translation.x = tvecs[i][0][0]
-                transform_stamped.transform.translation.y = tvecs[i][0][1]
-                transform_stamped.transform.translation.z = tvecs[i][0][2]
+        Raises:
+            IOError: If the camera calibration values are not found
+        """
+        try:
+            cv_file = cv2.FileStorage(CAMERA_CALIBRATION_FILE_PATH, cv2.FILE_STORAGE_READ)
+            mtx = cv_file.getNode(MTX_NODE_NAME).mat()
+            dst = cv_file.getNode(DIST_NODE_NAME).mat()
+            cv_file.release()
+
+            # Check that the camera calibration values were found
+            if mtx is None or dst is None:
+                raise IOError(f"[ERROR] Unable to find camera calibration values in the file: {CAMERA_CALIBRATION_FILE_PATH}\n"
+                              f"[INFO] Please ensure that the file exists and contains the correct calibration data.")
+
+            return mtx, dst
+
+        except Exception as e:
+            print(f"{e}")
+            sys.exit(0)
+
+    def get_aruco_dictionary(self):
+        """
+        Get the ArUco dictionary
         
-                # Store the rotation information
-                rotation_matrix = np.eye(4)
-                rotation_matrix[0:3, 0:3] = cv2.Rodrigues(np.array(rvecs[i][0]))[0]
-                r = R.from_matrix(rotation_matrix[0:3, 0:3])
-                quat = r.as_quat()   
+        Returns:
+            aruco_dictionary: The ArUco dictionary
+            aruco_parameters: The ArUco parameters
+            
+        Raises:
+            IOError: If the ArUco dictionary is not supported
+        """
+        # Check that we have a valid ArUco marker
+        if ARUCO_DICT.get(ARUCO_DICTIONARY_NAME, None) is None:
+            print(f"[ERROR] ArUCo tag of '{ARUCO_DICTIONARY_NAME}' is not supported")
+            sys.exit(0)
+
+        # Load the ArUco dictionary
+        aruco_dictionary = cv2.aruco.Dictionary_get(ARUCO_DICT[ARUCO_DICTIONARY_NAME])
+        aruco_parameters = cv2.aruco.DetectorParameters_create()
+        print(f"[INFO] Detecting '{ARUCO_DICTIONARY_NAME}' markers")
+
+        return aruco_dictionary, aruco_parameters
+  
+    def calculate_marker_location(self, image_msg):
+        """
+        Calculate the location of the ArUco marker in the image
+        
+        Parameters:
+            image_msg: The image message   
+        """
+        self.frame = self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough')
+
+        (corners, marker_ids, rejected) = cv2.aruco.detectMarkers(self.frame, self.aruco_dictionary, parameters=self.aruco_parameters, cameraMatrix=self.mtx, distCoeff=self.dst)
+
+        # Check that at least one ArUco marker was detected
+        if marker_ids is not None:
+            cv2.aruco.drawDetectedMarkers(self.frame, corners, marker_ids)
+
+            # Get the rotation and translation vectors
+            rvecs, tvecs, obj_points = cv2.aruco.estimatePoseSingleMarkers(corners, ARUCO_MARKER_SIDE_LENGTH, self.mtx, self.dst)
+
+            for i, marker_id in enumerate(marker_ids):  
+                transform_stamped = self.create_transform_stamped() # Create a TransformStamped message
+                transform_stamped = self.update_transform_stamped(transform_stamped, i, tvecs, rvecs) # Update the TransformStamped message
                 
-                # Quaternion format     
-                transform_stamped.transform.rotation.x = quat[0] 
-                transform_stamped.transform.rotation.y = quat[1] 
-                transform_stamped.transform.rotation.z = quat[2] 
-                transform_stamped.transform.rotation.w = quat[3] 
-        
                 # Send the transform
                 self.tfbroadcaster.sendTransform(transform_stamped)    
                         
                 # Draw the axes on the marker
-                cv2.aruco.drawAxis(current_frame, self.mtx, self.dst, rvecs[i], tvecs[i], 0.05)        
+                cv2.aruco.drawAxis(self.frame, self.mtx, self.dst, rvecs[i], tvecs[i], 0.05)        
                     
-            cv2.imshow("camera", current_frame)
-            cv2.waitKey(1)
-   
+        self.publish_image(self.frame)
+
+    def publish_image(self, frame):
+        """
+        Publish the image with the detected marker location
+        
+        Parameters:
+            frame: The image with the detected marker location
+        """
+        image_message = self.bridge.cv2_to_imgmsg(frame, encoding="passthrough")
+        self.pubDetectedMarkerLocation.publish(image_message)
+
+    def create_transform_stamped(self):
+        """ 
+        Create a TransformStamped message
+        
+        Returns:
+            transform_stamped: The TransformStamped message
+        """
+        transform_stamped = TransformStamped()
+        transform_stamped.header.stamp = self.get_clock().now().to_msg()
+        transform_stamped.header.frame_id = 'camera_depth_frame'
+        transform_stamped.child_frame_id = ARUCO_MARKER_NAME
+        return transform_stamped
+
+    def update_transform_stamped(self, transform_stamped, i, tvecs, rvecs):
+        """
+        Update the TransformStamped message with the translation and rotation data
+        
+        Parameters:
+            transform_stamped: The TransformStamped message
+            i: The index of the marker
+            tvecs: The translation vectors
+            rvecs: The rotation vectors
+        
+        Returns:
+            transform_stamped: The updated TransformStamped message"""
+        transform_stamped = self.set_translation_data(transform_stamped, i, tvecs)
+        quaternion = self.set_rotation_data(i, rvecs)
+        transform_stamped = self.set_transform_rotation_data(transform_stamped, quaternion)
+        return transform_stamped
+
+    def set_translation_data(self, transform_stamped, i, tvecs):
+        """
+        Set the translation data for the TransformStamped message
+        
+        Parameters:
+            transform_stamped: The TransformStamped message
+            i: The index of the marker
+            tvecs: The translation vectors
+        
+        Returns:
+            transform_stamped: The updated TransformStamped message
+        """
+        transform_stamped.transform.translation.x = tvecs[i][0][0]
+        transform_stamped.transform.translation.y = tvecs[i][0][1]
+        transform_stamped.transform.translation.z = tvecs[i][0][2]
+        return transform_stamped
+
+    def set_rotation_data(self, i, rvecs):
+        """
+        Set the rotation data for the TransformStamped message
+        
+        Parameters:
+            i: The index of the marker
+            rvecs: The rotation vectors
+        
+        Returns:
+            quaternion: The rotation data as a quaternion
+        """
+        rotation_matrix = np.eye(4)
+        rotation_matrix[0:3, 0:3] = cv2.Rodrigues(np.array(rvecs[i][0]))[0]
+        r = R.from_matrix(rotation_matrix[0:3, 0:3])
+        quaternion = r.as_quat()   
+
+        return quaternion
+
+    def set_transform_rotation_data(self, transform_stamped, quaternion):
+        """ 
+        Set the rotation data for the TransformStamped message
+        
+        Parameters:
+            transform_stamped: The TransformStamped message
+            quaternion: The rotation data as a quaternion
+        
+        Returns:
+            transform_stamped: The updated TransformStamped message
+        """
+        transform_stamped.transform.rotation.x = quaternion[0] 
+        transform_stamped.transform.rotation.y = quaternion[1] 
+        transform_stamped.transform.rotation.z = quaternion[2] 
+        transform_stamped.transform.rotation.w = quaternion[3] 
+
+        return transform_stamped
+
 def main(args=None):
     rclpy.init(args=args)
     aruco_location = ArucoLocation()
