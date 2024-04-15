@@ -50,9 +50,6 @@ ARUCO_DICTIONARY_NAME = "DICT_4X4_1000"
 # ArUco marker side length in meters; change to the correct side length
 ARUCO_MARKER_SIDE_LENGTH = 0.030 # 28mm
 
-# ArUco marker name; change to the correct marker name; TODO: change if needed 
-ARUCO_MARKER_NAME = "aruco_marker"
-
 # File path to the input image; change to the correct directory path and file name
 DIRECTORY = "/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration/calibration_values/"
 CAMERA_CALIBRATION_FILE_NAME = "calibration_chessboard.yaml"
@@ -175,7 +172,7 @@ class ArucoLocation(Node):
         transform_stamped = TransformStamped()
         transform_stamped.header.stamp = self.get_clock().now().to_msg()
         transform_stamped.header.frame_id = 'camera_depth_frame'
-        transform_stamped.child_frame_id = ARUCO_MARKER_NAME
+        transform_stamped.child_frame_id = 'aruco_marker'
         return transform_stamped
 
     def update_transform_stamped(self, transform_stamped, i, tvecs, rvecs):
