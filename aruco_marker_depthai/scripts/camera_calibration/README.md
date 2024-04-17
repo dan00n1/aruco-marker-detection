@@ -33,5 +33,5 @@ The console output should resemble the content structure of `camera_calibration_
 ### Optional: Undistort images
 If necessary, utilize `undistort_camera_images.py` to undistort additional images using the created pickle file.
 
-### Optional: Generate YAML File
-Run `pickle_to_yaml.py` to create a `calibration_chessboard.yaml` file if a YAML file is required. Use `open_yaml_file.py` to confirm successful loading of its contents.
+### 5. Generate YAML File
+Execute `pickle_to_yaml.py` to create a `calibration_chessboard.yaml` file. This YAML file is essential for later stages. Confirm successful loading of its contents using `open_yaml_file.py`.
