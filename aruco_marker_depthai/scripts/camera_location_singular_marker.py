@@ -11,8 +11,11 @@ from sensor_msgs.msg import Image
 from tf2_ros import TransformBroadcaster
 from scipy.spatial.transform import Rotation as R
 
+# Set to True to print the camera pose in console
 DEBUG_PRINT_CAMERA_POSE = False
 
+# The different ArUco dictionaries built into the OpenCV library. 
+# This list is used to check if the user has selected a valid ArUco dictionary.
 ARUCO_DICT = {
     "DICT_4X4_50": cv2.aruco.DICT_4X4_50,
     "DICT_4X4_100": cv2.aruco.DICT_4X4_100,
@@ -33,19 +36,24 @@ ARUCO_DICT = {
     "DICT_ARUCO_ORIGINAL": cv2.aruco.DICT_ARUCO_ORIGINAL
 }
 
+# ArUco dictionary name; change to the used dictionary; if you used the generator provided in the README, this should be the same
 ARUCO_DICTIONARY_NAME = "DICT_4X4_1000"
-ARUCO_MARKER_SIDE_LENGTH = 0.030 
 
+# ArUco marker side length in meters; change to the correct side length
+ARUCO_MARKER_SIDE_LENGTH = 0.030 #Example: 0.030 meters = 30 mm
+
+# File path to the yaml file; change to the correct directory path and file name
 DIRECTORY = "/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration/calibration_values/"
 CAMERA_CALIBRATION_FILE_NAME = "calibration_chessboard.yaml"
 CAMERA_CALIBRATION_FILE_PATH = os.path.join(DIRECTORY, CAMERA_CALIBRATION_FILE_NAME)
 
+# Check if node values are the same as the saved values inside the YAML file.
 MTX_NODE_NAME = "MTX"
 DIST_NODE_NAME = "DIST"
 
-class ArucoLocation(Node):
+class CameraLocationSingularMarker(Node):
     def __init__(self):
-        super().__init__('aruco_location')
+        super().__init__('camera_location_singular_marker')
         self.bridge = CvBridge()
         self.tfbroadcaster = TransformBroadcaster(self)
 
@@ -187,9 +195,9 @@ class ArucoLocation(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    aruco_location = ArucoLocation()
-    rclpy.spin(aruco_location)
-    aruco_location.destroy_node()
+    camera_location_singular_marker = CameraLocationSingularMarker()
+    rclpy.spin(camera_location_singular_marker)
+    camera_location_singular_marker.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
