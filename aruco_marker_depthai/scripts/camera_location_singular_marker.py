@@ -64,6 +64,16 @@ class CameraLocationSingularMarker(Node):
         self.subImage = self.create_subscription(Image, 'color/image_rect', self.calculate_camera_pose, 10)
         
     def get_camera_calibration_values(self):
+        """ 
+        Get the camera calibration values from the yaml file
+        
+        Returns:
+            mtx: The camera matrix
+            dst: The distortion coefficients
+
+        Raises:
+            IOError: If the camera calibration values are not found in the file
+        """
         try:
             cv_file = cv2.FileStorage(CAMERA_CALIBRATION_FILE_PATH, cv2.FILE_STORAGE_READ)
             mtx = cv_file.getNode(MTX_NODE_NAME).mat()
@@ -81,6 +91,16 @@ class CameraLocationSingularMarker(Node):
             sys.exit(0)
 
     def get_aruco_dictionary(self):
+        """ 
+        Get the ArUco dictionary and parameters
+        
+        Returns:
+            aruco_dictionary: The ArUco dictionary
+            aruco_parameters: The ArUco parameters
+            
+        Raises:
+            SystemExit: If the ArUco dictionary is not supported
+        """
         if ARUCO_DICT.get(ARUCO_DICTIONARY_NAME, None) is None:
             print(f"[ERROR] ArUCo tag of '{ARUCO_DICTIONARY_NAME}' is not supported")
             sys.exit(0)
@@ -92,6 +112,12 @@ class CameraLocationSingularMarker(Node):
         return aruco_dictionary, aruco_parameters
   
     def calculate_camera_pose(self, image_msg):
+        """ 
+        Calculate the camera pose
+        
+        Parameters:
+            image_msg: The image message
+        """
         self.frame = self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough')
 
         (corners, marker_ids, rejected) = cv2.aruco.detectMarkers(self.frame, self.aruco_dictionary, parameters=self.aruco_parameters, cameraMatrix=self.mtx, distCoeff=self.dst)

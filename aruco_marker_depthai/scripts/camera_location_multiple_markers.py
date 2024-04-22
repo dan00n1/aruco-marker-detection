@@ -66,6 +66,16 @@ class CameraLocationMultipleMarkers(Node):
         self.pubDetectedCameraLocationTransforms = self.create_publisher(TransformStamped, 'detected_camera_location_transforms', 10)
         
     def get_camera_calibration_values(self):
+        """ 
+        Get the camera calibration values from the yaml file
+        
+        Returns:
+            mtx: The camera matrix
+            dst: The distortion coefficients
+
+        Raises:
+            IOError: If the camera calibration values are not found in the file
+        """
         try:
             cv_file = cv2.FileStorage(CAMERA_CALIBRATION_FILE_PATH, cv2.FILE_STORAGE_READ)
             mtx = cv_file.getNode(MTX_NODE_NAME).mat()
@@ -83,6 +93,16 @@ class CameraLocationMultipleMarkers(Node):
             sys.exit(0)
 
     def get_aruco_dictionary(self):
+        """ 
+        Get the ArUco dictionary and parameters
+        
+        Returns:
+            aruco_dictionary: The ArUco dictionary
+            aruco_parameters: The ArUco parameters
+            
+        Raises:
+            SystemExit: If the ArUco dictionary is not supported
+        """
         if ARUCO_DICT.get(ARUCO_DICTIONARY_NAME, None) is None:
             print(f"[ERROR] ArUCo tag of '{ARUCO_DICTIONARY_NAME}' is not supported")
             sys.exit(0)
@@ -94,6 +114,12 @@ class CameraLocationMultipleMarkers(Node):
         return aruco_dictionary, aruco_parameters
   
     def calculate_camera_pose(self, image_msg):
+        """ 
+        Calculate the camera pose
+        
+        Parameters:
+            image_msg: The image message
+        """
         frame = self.bridge.imgmsg_to_cv2(image_msg, desired_encoding='passthrough')
 
         (corners, marker_ids, rejected) = cv2.aruco.detectMarkers(frame, self.aruco_dictionary, parameters=self.aruco_parameters, cameraMatrix=self.mtx, distCoeff=self.dst)
@@ -125,6 +151,17 @@ class CameraLocationMultipleMarkers(Node):
         self.publish_image(frame)
 
     def create_marker_transform_stamped(self, marker_id, rvec, tvec):
+        """ 
+        Create a TransformStamped message for the marker
+        
+        Parameters:
+            marker_id: The ID of the marker
+            rvec: The rotation vector
+            tvec: The translation vector
+        
+        Returns:
+            transform_stamped: The TransformStamped message
+        """
         transform_stamped = TransformStamped()
         transform_stamped.header.stamp = self.get_clock().now().to_msg()
         transform_stamped.header.frame_id = f"world"  # Assuming the markers are fixed on the ground
@@ -148,6 +185,12 @@ class CameraLocationMultipleMarkers(Node):
         return transform_stamped
 
     def publish_camera_transform(self, camera_pose, marker_ids):
+        """
+        Publish the camera pose
+        
+        Parameters:
+            camera_pose: A tuple containing the quaternion representing rotation and the translation vector representing position
+        """
         quaternion, translation = camera_pose
         transform_stamped = TransformStamped()
         transform_stamped.header.stamp = self.get_clock().now().to_msg()
