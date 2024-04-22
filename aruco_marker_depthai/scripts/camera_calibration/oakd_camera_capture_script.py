@@ -13,7 +13,9 @@ Important note:
 If the message 'Image saved to ...' is not printed, you may need to press the 'c' key again.
 Sometimes even multiple times, as the camera may not be ready to capture the image.
 Maybe waiting for a longer time before capturing again could help or try to restart the script.
+The images will be saved with the following format: chessboard_oakd_dd-mm_HH-MM-SS.jpeg
 
+The script can be stopped by pressing the 'q' key.
 """
 
 #!/usr/bin/env python3
@@ -23,10 +25,11 @@ import cv2
 import depthai as dai
 import os
 
+# Directory where the images will be saved; change this to your desired directory
 DIRECTORY_NAME = "/home/danoon/shared/aruco-marker-detection/Media/images_oakd_camera"
 
-
 def get_date_time():
+    """ Get the current date and time in the format: dd-mm_HH-MM-SS """
     current_time_ms = int(time.time() * 1000)
 
     # Convert milliseconds to a datetime object
@@ -73,8 +76,7 @@ with dai.Device(pipeline) as device:
         inRgb = qRgb.tryGet()  # Non-blocking call, will return a new data that has arrived or None otherwise
         if inRgb is not None:
             frame = inRgb.getCvFrame()
-            # 4k / 4
-            frame = cv2.pyrDown(frame) # Downscale twice
+            frame = cv2.pyrDown(frame) # Downscale twice (4k / 4)
             frame = cv2.pyrDown(frame) 
             cv2.imshow("rgb", frame)
 

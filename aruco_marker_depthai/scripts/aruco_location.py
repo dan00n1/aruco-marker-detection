@@ -12,8 +12,7 @@ from tf2_ros import TransformBroadcaster
 from scipy.spatial.transform import Rotation as R
 
 """
-This script calculates the location of an ArUco marker in the camera frame.
-Uses rviz to visualize the marker location.
+This script calculates the location of an ArUco marker in the camera frame and uses RVIZ to visualize the marker location.
 
 The pose of the marker is with respect to the camera lens frame.
 Imagine you are looking through the camera viewfinder, the camera lens frame's:
