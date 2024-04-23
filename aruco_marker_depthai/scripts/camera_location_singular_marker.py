@@ -40,7 +40,7 @@ ARUCO_DICT = {
 ARUCO_DICTIONARY_NAME = "DICT_4X4_1000"
 
 # ArUco marker side length in meters; change to the correct side length
-ARUCO_MARKER_SIDE_LENGTH = 0.030 #Example: 0.030 meters = 30 mm
+ARUCO_MARKER_SIDE_LENGTH = 0.040 #Example: 0.030 meters = 30 mm
 
 # File path to the yaml file; change to the correct directory path and file name
 DIRECTORY = "/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration/calibration_values/"
@@ -181,15 +181,20 @@ class CameraLocationSingularMarker(Node):
         quaternion, translation = camera_pose
         transform_stamped = TransformStamped()
         transform_stamped.header.stamp = self.get_clock().now().to_msg()
-        transform_stamped.header.frame_id = 'marker_frame'  # Assuming this is the frame of the ArUco marker
-        transform_stamped.child_frame_id = 'camera_frame'  # Frame of the camera
-        transform_stamped.transform.translation.x = float(translation[0][0][0])  # Accessing the first element of the translation array
-        transform_stamped.transform.translation.y = float(translation[0][0][1])  # Accessing the second element of the translation array
-        transform_stamped.transform.translation.z = -float(translation[0][0][2])  # Accessing the third element of the translation array
-        transform_stamped.transform.rotation.x = float(quaternion[0])  # Accessing the quaternion components directly
+        transform_stamped.header.frame_id = 'marker_frame'
+        transform_stamped.child_frame_id = 'camera_frame'
+
+        # Set the translation values
+        transform_stamped.transform.translation.x = float(translation[0][0][0])
+        transform_stamped.transform.translation.y = float(translation[0][0][1])
+        transform_stamped.transform.translation.z = -float(translation[0][0][2])
+        
+        # Set the rotation values
+        transform_stamped.transform.rotation.x = float(quaternion[0])
         transform_stamped.transform.rotation.y = float(quaternion[1])
         transform_stamped.transform.rotation.z = float(quaternion[2])
         transform_stamped.transform.rotation.w = float(quaternion[3])
+
         return transform_stamped
 
     def publish_image(self, frame):

@@ -40,7 +40,7 @@ ARUCO_DICT = {
 ARUCO_DICTIONARY_NAME = "DICT_4X4_1000"
 
 # ArUco marker side length in meters; change to the correct side length
-ARUCO_MARKER_SIDE_LENGTH = 0.038 #Example: 0.030 meters = 30 mm
+ARUCO_MARKER_SIDE_LENGTH = 0.040 #Example: 0.030 meters = 30 mm
 
 # File path to the yaml file; change to the correct directory path and file name
 DIRECTORY = "/home/danoon/shared/aruco-marker-detection/aruco_marker_depthai/scripts/camera_calibration/calibration_values/"
