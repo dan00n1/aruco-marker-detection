@@ -114,6 +114,7 @@ install(PROGRAMS
         scripts/marker_detector.py
         scripts/aruco_pose_node.py
         scripts/aruco_location.py
+        scripts/marker_orientation_tester.py
         scripts/camera_location_singular_marker.py
         scripts/camera_location_multiple_markers.py
         DESTINATION lib/${PROJECT_NAME})
