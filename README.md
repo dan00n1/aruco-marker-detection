@@ -67,8 +67,11 @@ ros2 launch aruco_marker_depthai test_marker_orientation.launch.py
 <summary>Click to see the example images </summary>
 
 A wrong orientation: 
+
 ![upperleft wrong](<Media/README_images/upperleft wrong.png>)
+
 A correct orientation:
+
 ![upperleft correct](<Media/README_images/upperleft correct.png>)
 
 </details>
@@ -92,9 +95,11 @@ ros2 launch aruco_marker_depthai stereo_marker_location.launch.py
 <summary>Click here to see the example images</summary>
 
 Marker pose:
+
 ![marker_pose](<Media/README_images/marker_pose.png>)
 
 Marker location:
+
 ![marker_location](<Media/README_images/marker_location.png>)
 </details>
 
@@ -113,9 +118,11 @@ ros2 launch aruco_marker_depthai camera_location_multiple.launch.py
 <summary>Click to see the example images</summary>
 
 Camera location based on one marker:
+
 ![camera_location](<Media/README_images/camera_location.png>)
 
 Camera location based on multiple markers:
+
 ![camera_location_multi](<Media/README_images/camera_location_multi.png>)
 </details>
 
