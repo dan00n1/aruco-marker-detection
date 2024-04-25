@@ -151,7 +151,6 @@ class CameraLocationMultipleMarkers(Node):
 
                     # Publish the camera pose
                     self.publish_camera_transform(camera_pose, marker_id)
-                
 
             if len(rvecs) > 0 and len(all_tvecs) > 0:
                 avg_tvec = np.mean(all_tvecs, axis=0)

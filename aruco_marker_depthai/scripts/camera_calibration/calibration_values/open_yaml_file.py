@@ -18,6 +18,5 @@ cv_file.release()
 # Display key parameter outputs of the camera calibration process
 print("Camera matrix:") 
 print(mtx) 
-
 print("\n Distortion coefficient:") 
 print(dist) 

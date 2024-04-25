@@ -121,5 +121,5 @@ def process_image(file_path):
       display_image(image)
     else:
       print("No corners found")
-
+  
 process_image(FILE_PATH)

@@ -34,6 +34,7 @@ def generate_launch_description():
     rviz_node = launch_ros.actions.Node(package='rviz2', executable='rviz2', output='screen', arguments=['--display-config', default_rviz])
 
     ld = LaunchDescription()
+    
     ld.add_action(stereo_node)
     ld.add_action(camera_location_multiple_markers)
     ld.add_action(rviz_node)

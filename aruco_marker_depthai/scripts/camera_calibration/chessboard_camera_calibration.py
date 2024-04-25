@@ -290,8 +290,6 @@ def save_key_parameters_to_pickle_file(optimal_camera_matrix, mtx, dist, rvecs, 
     pickle.dump(calibration_result_list, new_pickle_file)
     print('\nFile saved to', f"{PICKLE_FILE_PATH}.pkl")
 
-
-
 def process_images(file_path):
   """
   A function to process the image and undistort it
