@@ -17,7 +17,7 @@ calibration_values = pickle.load(pickle_file)
 mtx = calibration_values['mtx']
 dist = calibration_values['dist']
 
-# Save parameters to a file
+# Save parameters to a file 
 cv_file = cv2.FileStorage(cv_file_path, cv2.FILE_STORAGE_WRITE)
 cv_file.write('MTX', mtx)
 cv_file.write('DIST', dist)

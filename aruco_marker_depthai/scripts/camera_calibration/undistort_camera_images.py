@@ -22,6 +22,7 @@ def load_image(file_path):
       if image is None:
           raise FileNotFoundError("Could not load image")
       return image
+  
   except Exception as e:
       print(f"Error loading image: {e}")
       return None

@@ -96,6 +96,7 @@ with dai.Device(pipeline) as device:
             with open(directory_name, "wb") as new_file:
                 new_file.write(qStill.get().getData()) 
                 print('Image saved to', directory_name)
+                
             capturing = False
 
 cv2.destroyAllWindows()
