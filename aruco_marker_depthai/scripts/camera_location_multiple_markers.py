@@ -128,6 +128,8 @@ class CameraLocationMultipleMarkers(Node):
             rvecs, tvecs, obj_points = cv2.aruco.estimatePoseSingleMarkers(corners, ARUCO_MARKER_SIDE_LENGTH, self.mtx, self.dst)
             self.draw_markers_on_frame(frame, corners, marker_ids)
 
+            all_tvecs = []
+
             for i in range(len(marker_ids)):
                 marker_id = marker_ids[i][0]
                 if 0 <= marker_id <= 10: #FIXME: to fix the range of marker_id
@@ -135,12 +137,15 @@ class CameraLocationMultipleMarkers(Node):
                     tvec = tvecs[i]
                     marker_transform = self.create_marker_transform_stamped(marker_id, rvec, tvec)
                     self.tfbroadcaster.sendTransform(marker_transform)
+                    all_tvecs.append(tvec)
 
-            if len(rvecs) > 0 and len(tvecs) > 0:
+            if len(rvecs) > 0 and len(all_tvecs) > 0:
+                avg_tvec = np.mean(all_tvecs, axis=0)
+                inverse_tvec = -avg_tvec
                 inverse_rvecs = [-r for r in rvecs]
-                inverse_tvecs = [-t for t in tvecs]
+
                 inverse_quaternion = self.set_rotation_data(0, inverse_rvecs)
-                camera_pose = (inverse_quaternion, inverse_tvecs)
+                camera_pose = (inverse_quaternion, inverse_tvec)
 
                 if DEBUG_PRINT_CAMERA_POSE:
                     self.print_camera_pose(camera_pose)
@@ -196,11 +201,11 @@ class CameraLocationMultipleMarkers(Node):
         transform_stamped.header.stamp = self.get_clock().now().to_msg()
 
         transform_stamped.header.frame_id = f"world" 
-        transform_stamped.child_frame_id = 'oak-d_frame'
+        transform_stamped.child_frame_id = 'camera_frame'
         # Position the camera frame above the markers
-        transform_stamped.transform.translation.x = float(translation[0][0][0])
-        transform_stamped.transform.translation.y = float(translation[0][0][1])
-        transform_stamped.transform.translation.z = -(float(translation[0][0][2]))
+        transform_stamped.transform.translation.x = float(translation[0][0])
+        transform_stamped.transform.translation.y = float(translation[0][1])
+        transform_stamped.transform.translation.z = -(float(translation[0][2]))
         transform_stamped.transform.rotation.x = float(quaternion[0])
         transform_stamped.transform.rotation.y = float(quaternion[1])
         transform_stamped.transform.rotation.z = float(quaternion[2])
@@ -208,7 +213,6 @@ class CameraLocationMultipleMarkers(Node):
         self.tfbroadcaster.sendTransform(transform_stamped)
         
         self.pubDetectedCameraLocationTransforms.publish(transform_stamped)
-
 
     def draw_markers_on_frame(self, frame, corners, marker_ids):
         """
