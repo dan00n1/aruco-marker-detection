@@ -117,6 +117,7 @@ install(PROGRAMS
         scripts/marker_orientation_tester.py
         scripts/camera_location_singular_marker.py
         scripts/camera_location_multiple_markers.py
+        scripts/camera_location_multiple_markers_multi_cameras.py
         DESTINATION lib/${PROJECT_NAME})
 
 
